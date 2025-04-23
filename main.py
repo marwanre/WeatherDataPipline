@@ -10,7 +10,7 @@ from google.cloud import bigquery
 
 ### Collecting weather data from weatherapi.com and storing it in Google Sheets and BigQuery
 # Set up the API key and locations
-API_KEY = "367ad2948c5f4007a1a194056252703"
+API_KEY = os.environ["API_TOKEN"]
 locations =[
     "Cairo", "Giza", "Alexandria", "Port Said", "Suez", "Ismailia", "Dakahlia", "Damietta", "Qalyubia", 
     "Kafr El-Sheikh", "Faiyum", "Beni Suef", "Assiut", "Sohag", "Qena", "Luxor", "Aswan", 
@@ -72,12 +72,14 @@ df = pd.DataFrame(data_list)
 # Uploading data to Google Sheets
 
 # Setup Google Sheets API authentication
+creds_path=os.getenv("GOOGLE_CREDENTIAL")
+
 scope = [
     "https://spreadsheets.google.com/feeds",
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive"
 ]
-creds = ServiceAccountCredentials.from_json_keyfile_name("key2.json", scope)
+creds = ServiceAccountCredentials.from_json_keyfile_name(creds_path, scope)
 client = gspread.authorize(creds)
 
 # Open the Google Sheet
@@ -143,7 +145,8 @@ rows = rows[rows['date'] >= start_date]
 rows = rows.to_dict(orient='records')  # Convert to list of dictionaries
 
 # Path to your service account JSON file
-service_account_path = "key2.json"
+service_account_path = os.getenv("GOOGLE_CREDENTIAL")
+
 
 # Initialize BigQuery client with the service account key
 bq_client = bigquery.Client.from_service_account_json(service_account_path)

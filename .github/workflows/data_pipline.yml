@@ -1,6 +1,10 @@
 name: weather data pipeline
 
 on:
+  schedule:
+    - cron: '15 22 * * *'  # 12:15 AM UTC+2
+    - cron: '15 10 * * *'   # 12:15 pm UTC+2
+    - cron: '15 19 * * *'  # 9:15 PM UTC+2
   workflow_dispatch:
 
 jobs:

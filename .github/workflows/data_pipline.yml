@@ -46,6 +46,7 @@
 #           API_TOKEN: ${{ secrets.API_TOKEN }}
 
 
+
 name: weather data pipeline
 
 on:
@@ -98,14 +99,22 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y msmtp msmtp-mta
           
+          # Decode the 'email' secret to JSON and extract values
+          echo "${{ secrets.email }}" > /tmp/email.json
+          
+          GMAIL_EMAIL=$(jq -r '.GMAIL_EMAIL' /tmp/email.json)
+          GMAIL_APP_PASSWORD=$(jq -r '.GMAIL_APP_PASSWORD' /tmp/email.json)
+          EMAIL_TO=$(jq -r '.EMAIL_TO' /tmp/email.json)
+          
+          # Configure msmtp
           echo "defaults" > ~/.msmtprc
           echo "account gmail" >> ~/.msmtprc
           echo "host smtp.gmail.com" >> ~/.msmtprc
           echo "port 587" >> ~/.msmtprc
-          echo "from ${{ secrets.GMAIL_EMAIL }}" >> ~/.msmtprc
+          echo "from $GMAIL_EMAIL" >> ~/.msmtprc
           echo "auth on" >> ~/.msmtprc
-          echo "user ${{ secrets.GMAIL_EMAIL }}" >> ~/.msmtprc
-          echo "password ${{ secrets.GMAIL_APP_PASSWORD }}" >> ~/.msmtprc
+          echo "user $GMAIL_EMAIL" >> ~/.msmtprc
+          echo "password $GMAIL_APP_PASSWORD" >> ~/.msmtprc
           echo "tls on" >> ~/.msmtprc
           echo "tls_starttls on" >> ~/.msmtprc
           echo "logfile ~/.msmtp.log" >> ~/.msmtprc
@@ -113,4 +122,4 @@ jobs:
 
       - name: Send email notification
         run: |
-          echo -e "Subject: 🔔 Weather Data Pipeline Ran\n\nThe scheduled weather data pipeline ran successfully at $(date -u)." | msmtp ${{ secrets.EMAIL_TO }}
+          echo -e "Subject: 🔔 Weather Data Pipeline Ran\n\nThe scheduled weather data pipeline ran successfully at $(date -u)." | msmtp $EMAIL_TO

@@ -1,5 +1,6 @@
 import requests
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 import pandas as pd
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -18,10 +19,15 @@ def main():
         "Kafr El-Sheikh", "Faiyum", "Beni Suef", "Assiut", "Sohag", "Qena", "Luxor", "Aswan", 
         "Marsa Matruh", "Monufia"]
 
+    # Define Egypt time zone
+    egypt_tz = ZoneInfo("Africa/Cairo")
+
+    # Get current time in Egypt
+    now = datetime.now(egypt_tz)
 
     # Get the last 3 days from today
-    END_DATE = (datetime.today() - timedelta(days=0)).strftime('%Y-%m-%d')  # today
-    START_DATE = (datetime.today() - timedelta(days=2)).strftime('%Y-%m-%d')  # 3 days ago
+    END_DATE = (now - timedelta(days=0)).strftime('%Y-%m-%d')  # today
+    START_DATE = (now - timedelta(days=2)).strftime('%Y-%m-%d')  # 3 days ago
     response_Location = []
     for location in locations:
         url = f"https://api.weatherapi.com/v1/history.json?key={API_KEY}&q={location}&dt={START_DATE}&end_dt={END_DATE}"
